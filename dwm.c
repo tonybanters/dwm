@@ -275,6 +275,7 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
+static Bool leader = False;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -1028,6 +1029,56 @@ keypress(XEvent *e)
 		&& keys[i].func)
 			keys[i].func(&(keys[i].arg));
 }
+
+/*void*/
+/*keypress(XEvent *e)*/
+/*{*/
+/*    unsigned int i;*/
+/*    KeySym keysym;*/
+/*    XKeyEvent *ev;*/
+/**/
+/*    ev = &e->xkey;*/
+/*    keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);*/
+/**/
+/*    printf("keysym: %lu (%d), ev->state: %u\n", keysym, keysym, ev->state);*/
+/*    printf("keysym: %lu, ev->state: %u\n", keysym, ev->state);*/
+/**/
+/*    fflush(stdout);*/
+/**/
+/*    if (leader) {*/
+/*        for (i = 0; i < LENGTH(leaderkeys); i++) {*/
+/*            if (keysym == leaderkeys[i].keysym) {*/
+/*                leaderkeys[i].func(&(leaderkeys[i].arg));*/
+/*                leader = False;*/
+/*                return;*/
+/*            }*/
+/*        }*/
+/**/
+/*        // Esc cancels leader mode*/
+/*        if (keysym == XK_Escape) {*/
+/*            leader = False;*/
+/*            return;*/
+/*        }*/
+/**/
+/*        // fallback exit*/
+/*        leader = False;*/
+/*        return;*/
+/*    }*/
+/**/
+/*    if (keysym == XK_space && CLEANMASK(ev->state) == MODKEY) {*/
+/*        leader = True;*/
+/*        return;*/
+/*    }*/
+/**/
+/*    for (i = 0; i < LENGTH(keys); i++) {*/
+/*        if (keysym == keys[i].keysym*/
+/*            && CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)) {*/
+/*            keys[i].func(&(keys[i].arg));*/
+/*            return;*/
+/*        }*/
+/*    }*/
+/*}*/
+
 
 void
 killclient(const Arg *arg)

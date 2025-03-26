@@ -18,7 +18,9 @@ static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
 /*static const char col_cyan[]        = "#005577";*/
 /*static const char col_cyan[]        = "#0b104f";*/
-static const char col_cyan[]        = "#6dade3";
+/*static const char col_cyan[]        = "#6dade3";*/
+static const char col_cyan[]        = "#4d6a8e";
+
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -74,6 +76,7 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *firefoxcmd[]  = { "firefox-bin", NULL };
 static const char *slock[]    = { "slock", NULL };
 static const char *screenshotcmd[] = { "/bin/sh", "-c", "maim -s | xclip -selection clipboard -t image/png", NULL };
 static const char *rofi[]  = { "rofi", "-show", "drun", "-theme", "~/.config/rofi/config.rasi", NULL };
@@ -92,7 +95,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_p,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_g,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_space,  zoom,           {0} },
 	{ MODKEY,                       XK_z,      incrgaps,       {.i = +3 } },
 	{ MODKEY,                       XK_x,      incrgaps,       {.i = -3 } },
 	{ MODKEY,                       XK_a,      togglegaps,     {0} },
@@ -123,6 +125,13 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+};
+
+static const Key leaderkeys[] = {
+    // Example: leader + g to launch Google Chrome
+    { 0,           XK_f,      spawn,          {.v = firefoxcmd }  },
+	{ 0,           XK_p,      spawn,          {.v = dmenucmd } },
+    // ... add more leader keybindings here
 };
 
 /* button definitions */
