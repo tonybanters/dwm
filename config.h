@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+#include <X11/XF86keysym.h>
 
 /* appearance */
 static const unsigned int borderpx  = 0;        /* border pixel of windows */
@@ -28,7 +29,8 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "", "󰊯", "", "", "󰙯", "󱇤", "", "󱘶", "󰧮" };
+/*static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };*/
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -54,11 +56,11 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 /*#include "fibonacci.c"*/
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ "󰝘",      tile },    /* first entry is default */
+	{ "",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
- 	{ "[@]",      spiral },
- 	{ "[\\]",      dwindle },
+ 	{ "",        spiral },
+ 	{ "[\\]",     dwindle },
 };
 
 /* key definitions */
@@ -125,6 +127,8 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+    { 0, XF86XK_AudioRaiseVolume, spawn, {.v = (const char*[]){"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+3%", NULL} } },
+    { 0, XF86XK_AudioLowerVolume, spawn, {.v = (const char*[]){"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-3%", NULL} } },
 };
 
 static const Key leaderkeys[] = {
