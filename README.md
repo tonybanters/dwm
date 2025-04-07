@@ -1,3 +1,7 @@
+# Prerequisites 
+
+`gcc, rofi, dmenu, slock, xorg-xserver`
+
 # DWM Keybindings
 
 This document describes the keybindings configured in my DWM setup.
