@@ -1,6 +1,6 @@
 # Prerequisites 
 
-`gcc, rofi, dmenu, slock, xorg-xserver`
+`gcc, rofi, dmenu, slock, xorg-server`
 
 # DWM Keybindings
 
