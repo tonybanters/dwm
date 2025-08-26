@@ -12,19 +12,32 @@ static const unsigned int gappov    = 3;       /* vert outer gap between windows
 static       int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=16" };
-static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=16";
+static const char *fonts[] = {
+    "JetBrainsMono Nerd Font Mono:style=Bold:size=16",
+};
+static const char dmenufont[]       = "JetBrainsMono Nerd Font Mono:style=Bold:size=16";
 static const char col_gray1[]       = "#000000";
-/*static const char col_gray1[]       = "#222222";*/
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
 static const char col_cyan[]        = "#4d6a8e";
 
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+/* TokyoNight colors */
+static const char col_bg[]     = "#1a1b26";  // background
+static const char col_fg[]     = "#a9b1d6";  // foreground
+static const char col_blk[]    = "#32344a";  // black (normal)
+static const char col_red[]    = "#f7768e";  // red
+static const char col_grn[]    = "#9ece6a";  // green
+static const char col_ylw[]    = "#e0af68";  // yellow
+static const char col_blu[]    = "#7aa2f7";  // blue
+static const char col_mag[]    = "#ad8ee6";  // magenta
+static const char col_cyn[]    = "#0db9d7";  // cyan (highlight)
+static const char col_brblk[]  = "#444b6a";  // bright black
+
+static const char *colors[][3] = {
+    /*               fg       bg       border */
+    [SchemeNorm] = { col_fg,  col_bg,   col_brblk },
+    [SchemeSel]  = { col_cyn, col_bg,   col_mag   },
 };
 
 /* tagging */
@@ -43,6 +56,7 @@ static const Rule rules[] = {
 	{ "firefox",         NULL,       NULL,       1 << 2,       0,           -1 },
 	{ "Slack",           NULL,       NULL,       1 << 3,       0,           -1 },
 	{ "discord",         NULL,       NULL,       1 << 4,       0,           -1 },
+	{ "kdenlive",        NULL,       NULL,       1 << 7,       0,           -1 },
 };
 
 /* layout(s) */
@@ -54,6 +68,7 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
 #include "vanitygaps.c"
 /*#include "fibonacci.c"*/
+
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "󰝘",        tile },    /* first entry is default */
