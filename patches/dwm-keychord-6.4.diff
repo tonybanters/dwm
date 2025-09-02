@@ -1,5 +1,19 @@
---- config.def.h
-+++ config.def.h
+From cb7ea178ac8e60cf123b333af64df8228762f669 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Aaron=20Z=C3=BCger?= <contact@azureorange.xyz>
+Date: Wed, 19 Jul 2023 14:17:39 +0200
+Subject: [PATCH] Update dwm-keychord patch to comply with the changes in dwm
+ from version 6.2 to version 6.4. Namely changes in the grabkey function to
+ match the newer implementation of said function.
+
+---
+ config.def.h | 81 ++++++++++++++++++++++++++--------------------------
+ dwm.c        | 72 +++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 99 insertions(+), 54 deletions(-)
+
+diff --git a/config.def.h b/config.def.h
+index 9efa774..49f0558 100644
+--- a/config.def.h
++++ b/config.def.h
 @@ -46,11 +46,11 @@ static const Layout layouts[] = {
  
  /* key definitions */
@@ -95,3 +109,127 @@
  };
  
  /* button definitions */
+diff --git a/dwm.c b/dwm.c
+index f1d86b2..e4885a4 100644
+--- a/dwm.c
++++ b/dwm.c
+@@ -102,9 +102,14 @@ struct Client {
+ typedef struct {
+ 	unsigned int mod;
+ 	KeySym keysym;
++} Key;
++
++typedef struct {
++    unsigned int n;
++    const Key keys[5];
+ 	void (*func)(const Arg *);
+ 	const Arg arg;
+-} Key;
++} Keychord;
+ 
+ typedef struct {
+ 	const char *symbol;
+@@ -267,6 +272,7 @@ static Display *dpy;
+ static Drw *drw;
+ static Monitor *mons, *selmon;
+ static Window root, wmcheckwin;
++unsigned int currentkey = 0;
+ 
+ /* configuration, allows nested code to access above variables */
+ #include "config.h"
+@@ -954,7 +960,8 @@ grabkeys(void)
+ {
+ 	updatenumlockmask();
+ 	{
+-		unsigned int i, j, k;
++		/* unsigned int i, j, k; */
++		unsigned int i, c, k;
+ 		unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
+ 		int start, end, skip;
+ 		KeySym *syms;
+@@ -964,15 +971,18 @@ grabkeys(void)
+ 		syms = XGetKeyboardMapping(dpy, start, end - start + 1, &skip);
+ 		if (!syms)
+ 			return;
++
+ 		for (k = start; k <= end; k++)
+-			for (i = 0; i < LENGTH(keys); i++)
++			for (i = 0; i < LENGTH(keychords); i++)
+ 				/* skip modifier codes, we do that ourselves */
+-				if (keys[i].keysym == syms[(k - start) * skip])
+-					for (j = 0; j < LENGTH(modifiers); j++)
++				if (keychords[i]->keys[currentkey].keysym == syms[(k - start) * skip])
++					for (c = 0; c < LENGTH(modifiers); c++)
+ 						XGrabKey(dpy, k,
+-							 keys[i].mod | modifiers[j],
++							 keychords[i]->keys[currentkey].mod | modifiers[c],
+ 							 root, True,
+ 							 GrabModeAsync, GrabModeAsync);
++                if(currentkey > 0)
++                        XGrabKey(dpy, XKeysymToKeycode(dpy, XK_Escape), AnyModifier, root, True, GrabModeAsync, GrabModeAsync);
+ 		XFree(syms);
+ 	}
+ }
+@@ -999,17 +1009,51 @@ isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
+ void
+ keypress(XEvent *e)
+ {
+-	unsigned int i;
++	/* unsigned int i; */
++    XEvent event = *e;
++    unsigned int ran = 0;
+ 	KeySym keysym;
+ 	XKeyEvent *ev;
+ 
+-	ev = &e->xkey;
+-	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+-	for (i = 0; i < LENGTH(keys); i++)
+-		if (keysym == keys[i].keysym
+-		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
+-		&& keys[i].func)
+-			keys[i].func(&(keys[i].arg));
++    Keychord *arr1[sizeof(keychords) / sizeof(Keychord*)];
++    Keychord *arr2[sizeof(keychords) / sizeof(Keychord*)];
++    memcpy(arr1, keychords, sizeof(keychords));
++    Keychord **rpointer = arr1;
++    Keychord **wpointer = arr2;
++
++    size_t r = sizeof(keychords)/ sizeof(Keychord*);
++
++    while(1){
++            ev = &event.xkey;
++            keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
++            size_t w = 0;
++            for (int i = 0; i < r; i++){
++                    if(keysym == (*(rpointer + i))->keys[currentkey].keysym
++                       && CLEANMASK((*(rpointer + i))->keys[currentkey].mod) == CLEANMASK(ev->state)
++                       && (*(rpointer + i))->func){
++                            if((*(rpointer + i))->n == currentkey +1){
++                                    (*(rpointer + i))->func(&((*(rpointer + i))->arg));
++                                    ran = 1;
++                            }else{
++                                    *(wpointer + w) = *(rpointer + i);
++                                    w++;
++                            }
++                    }
++            }
++            currentkey++;
++            if(w == 0 || ran == 1)
++                    break;
++            grabkeys();
++            while (running && !XNextEvent(dpy, &event) && !ran)
++                    if(event.type == KeyPress)
++                            break;
++            r = w;
++            Keychord **holder = rpointer;
++            rpointer = wpointer;
++            wpointer = holder;
++    }
++    currentkey = 0;
++    grabkeys();
+ }
+ 
+ void
+-- 
+2.41.0
+

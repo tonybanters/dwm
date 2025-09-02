@@ -66,8 +66,8 @@ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
-enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
-       ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
+enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkClientWin,
+       ClkRootWin, ClkLast }; /* clicks */
 
 typedef union {
 	int i;
@@ -214,6 +214,8 @@ static void setmfact(const Arg *arg);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
+static void sighup(int unused);
+static void sigterm(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
@@ -268,6 +270,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[UnmapNotify] = unmapnotify
 };
 static Atom wmatom[WMLast], netatom[NetLast];
+static int restart = 0;
 static int running = 1;
 static Cur *cursor[CurLast];
 static Clr **scheme;
@@ -275,6 +278,7 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
+static Bool leader = False;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -466,10 +470,8 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - (int)TEXTW(stext))
-			click = ClkStatusText;
 		else
-			click = ClkWinTitle;
+			click = ClkStatusText;
 	} else if ((c = wintoclient(ev->window))) {
 		focus(c);
 		restack(selmon);
@@ -728,8 +730,6 @@ void
 drawbar(Monitor *m)
 {
 	int x, w, tw = 0;
-	int boxs = drw->fonts->h / 9;
-	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 
@@ -762,18 +762,11 @@ drawbar(Monitor *m)
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
 
-	if ((w = m->ww - tw - x) > bh) {
-		if (m->sel) {
-			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
-			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-			if (m->sel->isfloating)
-				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-		} else {
-			drw_setscheme(drw, scheme[SchemeNorm]);
-			drw_rect(drw, x, 0, w, bh, 1, 1);
-		}
-	}
-	drw_map(drw, m->barwin, 0, 0, m->ww, bh);
+    if ((w = m->ww - tw - x) > bh) {
+        drw_setscheme(drw, scheme[SchemeNorm]);
+        drw_rect(drw, x, 0, w, bh, 1, 1);
+    }
+    drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 }
 
 void
@@ -1040,6 +1033,56 @@ keypress(XEvent *e)
 			keys[i].func(&(keys[i].arg));
 }
 
+/*void*/
+/*keypress(XEvent *e)*/
+/*{*/
+/*    unsigned int i;*/
+/*    KeySym keysym;*/
+/*    XKeyEvent *ev;*/
+/**/
+/*    ev = &e->xkey;*/
+/*    keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);*/
+/**/
+/*    printf("keysym: %lu (%d), ev->state: %u\n", keysym, keysym, ev->state);*/
+/*    printf("keysym: %lu, ev->state: %u\n", keysym, ev->state);*/
+/**/
+/*    fflush(stdout);*/
+/**/
+/*    if (leader) {*/
+/*        for (i = 0; i < LENGTH(leaderkeys); i++) {*/
+/*            if (keysym == leaderkeys[i].keysym) {*/
+/*                leaderkeys[i].func(&(leaderkeys[i].arg));*/
+/*                leader = False;*/
+/*                return;*/
+/*            }*/
+/*        }*/
+/**/
+/*        // Esc cancels leader mode*/
+/*        if (keysym == XK_Escape) {*/
+/*            leader = False;*/
+/*            return;*/
+/*        }*/
+/**/
+/*        // fallback exit*/
+/*        leader = False;*/
+/*        return;*/
+/*    }*/
+/**/
+/*    if (keysym == XK_space && CLEANMASK(ev->state) == MODKEY) {*/
+/*        leader = True;*/
+/*        return;*/
+/*    }*/
+/**/
+/*    for (i = 0; i < LENGTH(keys); i++) {*/
+/*        if (keysym == keys[i].keysym*/
+/*            && CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)) {*/
+/*            keys[i].func(&(keys[i].arg));*/
+/*            return;*/
+/*        }*/
+/*    }*/
+/*}*/
+
+
 void
 killclient(const Arg *arg)
 {
@@ -1283,11 +1326,8 @@ propertynotify(XEvent *e)
 			drawbars();
 			break;
 		}
-		if (ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
+		if (ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName])
 			updatetitle(c);
-			if (c == c->mon->sel)
-				drawbar(c->mon);
-		}
 		if (ev->atom == netatom[NetWMWindowType])
 			updatewindowtype(c);
 	}
@@ -1296,6 +1336,7 @@ propertynotify(XEvent *e)
 void
 quit(const Arg *arg)
 {
+	if(arg->i) restart = 1;
 	running = 0;
 }
 
@@ -1604,6 +1645,9 @@ setup(void)
 	/* clean up any zombies (inherited from .xinitrc etc) immediately */
 	while (waitpid(-1, NULL, WNOHANG) > 0);
 
+	signal(SIGHUP, sighup);
+	signal(SIGTERM, sigterm);
+
 	/* init screen */
 	screen = DefaultScreen(dpy);
 	sw = DisplayWidth(dpy, screen);
@@ -1693,6 +1737,20 @@ showhide(Client *c)
 		showhide(c->snext);
 		XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
 	}
+}
+
+void
+sighup(int unused)
+{
+	Arg a = {.i = 1};
+	quit(&a);
+}
+
+void
+sigterm(int unused)
+{
+	Arg a = {.i = 0};
+	quit(&a);
 }
 
 void
@@ -2182,6 +2240,7 @@ main(int argc, char *argv[])
 #endif /* __OpenBSD__ */
 	scan();
 	run();
+	if(restart) execvp(argv[0], argv);
 	cleanup();
 	XCloseDisplay(dpy);
 	return EXIT_SUCCESS;
