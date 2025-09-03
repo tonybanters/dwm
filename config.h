@@ -154,6 +154,11 @@ static Keychord *keychords[] = {
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_8}}, view, {.ui = 1 << 7} }),
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_9}}, view, {.ui = 1 << 8} }),
 
+    // Dmenu Scripts
+    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
+    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_s}}, spawn, SHCMD("$HOME/scripts/tmux-rofi.sh")}),
+    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_c}}, spawn, SHCMD("$HOME/scripts/configs-dmenu.sh")}),
+
     // TAGKEYS
     TAGKEYS(                        XK_1,                      0)
     TAGKEYS(                        XK_2,                      1)
