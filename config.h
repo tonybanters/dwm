@@ -158,6 +158,8 @@ static Keychord *keychords[] = {
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_s}}, spawn, SHCMD("$HOME/scripts/tmux-rofi.sh")}),
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_c}}, spawn, SHCMD("$HOME/scripts/configs-dmenu.sh")}),
+    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_r}}, spawn, SHCMD("$HOME/scripts/repos-dmenu.sh")}),
+    // &((Keychord){3, {{MODKEY, XK_space}, {0, XK_f}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
 
     // TAGKEYS
     TAGKEYS(                        XK_1,                      0)
