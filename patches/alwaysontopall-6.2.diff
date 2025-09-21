@@ -1,7 +1,7 @@
 From 9cd160c4ba9c345c24644a7da77cc4f04fc93c4e Mon Sep 17 00:00:00 2001
-From: Rob Pilling <robpilling@gmail.com>
-Date: Mon, 27 Jul 2020 20:11:08 +0100
-Subject: [PATCH] alwaysontop
+From: Matt Quintanilla <matt@mattquintanilla.xyz>
+Date: Fri, 13 Oct 2023 20:11:08 +0100
+Subject: [PATCH] alwaysontop for all
 
 ---
  config.def.h |  1 +
@@ -64,7 +64,6 @@ index 4465af1..8d54b26 100644
 +		for(c = m_search->clients; c; c = c->next){
 +			if(c->isalwaysontop){
 +				XRaiseWindow(dpy, c->win);
-+				break;
 +			}
 +		}
 +	}
@@ -92,14 +91,8 @@ index 4465af1..8d54b26 100644
 +	if(selmon->sel->isalwaysontop){
 +		selmon->sel->isalwaysontop = 0;
 +	}else{
-+		/* disable others */
-+		for(Monitor *m = mons; m; m = m->next)
-+			for(Client *c = m->clients; c; c = c->next)
 +				c->isalwaysontop = 0;
 +
-+		/* turn on, make it float too */
-+		selmon->sel->isfloating = 1;
-+		selmon->sel->isalwaysontop = 1;
 +	}
 +
  	arrange(selmon);
