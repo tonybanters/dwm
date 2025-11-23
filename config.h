@@ -124,8 +124,8 @@ static Keychord *keychords[] = {
     &((Keychord){1, {{MODKEY, XK_Tab}},             view,           {0} }),
     &((Keychord){1, {{MODKEY, XK_q}},               killclient,     {0} }),
 
-    &((Keychord){1, {{MODKEY, XK_t}},               setlayout,      {.v = &layouts[0]} }),
-    &((Keychord){1, {{MODKEY, XK_f}},               setlayout,      {.v = &layouts[1]} }),
+    &((Keychord){1, {{MODKEY|ShiftMask, XK_t}},     setlayout,      {.v = &layouts[0]} }),
+    // &((Keychord){1, {{MODKEY, XK_f}},               setlayout,      {.v = &layouts[1]} }),
     &((Keychord){1, {{MODKEY, XK_m}},               setlayout,      {.v = &layouts[2]} }),
     &((Keychord){1, {{MODKEY, XK_c}},               setlayout,      {.v = &layouts[3]} }),
     &((Keychord){1, {{MODKEY, XK_o}},               setlayout,      {.v = &layouts[4]} }),
@@ -155,11 +155,14 @@ static Keychord *keychords[] = {
     &((Keychord){2, {{MODKEY, XK_space}, {0, XK_9}}, view, {.ui = 1 << 8} }),
 
     // Dmenu Scripts
-    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
-    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_s}}, spawn, SHCMD("$HOME/scripts/tmux-rofi.sh")}),
-    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_c}}, spawn, SHCMD("$HOME/scripts/configs-dmenu.sh")}),
-    &((Keychord){2, {{MODKEY, XK_space}, {0, XK_r}}, spawn, SHCMD("$HOME/scripts/repos-dmenu.sh")}),
-    // &((Keychord){3, {{MODKEY, XK_space}, {0, XK_f}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
+    &((Keychord){2, {{MODKEY, XK_f}, {0, XK_f}}, spawn, SHCMD("$HOME/repos/dmenu-scripts/repos-dmenu.sh")}),
+    &((Keychord){2, {{MODKEY, XK_f}, {0, XK_o}}, spawn, SHCMD("$HOME/repos/dmenu-scripts/tmux-dmenu.sh")}),
+    &((Keychord){2, {{MODKEY, XK_f}, {0, XK_b}}, spawn, SHCMD("$HOME/repos/dmenu-scripts/bookmarks-dmenu.sh")}),
+    
+    // Emacs Scripts
+    // &((Keychord){2, {{MODKEY, XK_e}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
+    // &((Keychord){2, {{MODKEY, XK_e}, {0, XK_a}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
+    // &((Keychord){2, {{MODKEY, XK_e}, {0, XK_t}}, spawn, SHCMD("$HOME/scripts/tmux-dmenu.sh")}),
 
     // TAGKEYS
     TAGKEYS(                        XK_1,                      0)
