@@ -1,0 +1,10 @@
+--- dwm.c
++++ dwm.c
+@@ -272,6 +277,7 @@ static Display *dpy;
+ static Drw *drw;
+ static Monitor *mons, *selmon;
+ static Window root, wmcheckwin;
++unsigned int currentkey = 0;
+ 
+ /* configuration, allows nested code to access above variables */
+ #include "config.h"
